@@ -5,7 +5,7 @@ module.exports = {
      * @type String
      * @required
      */
-    name: "x force exchange",
+    name: "X-Force Exchange",
     /**
      * The acronym that appears in the notification window when information from this integration
      * is displayed.  Note that the acronym is included as part of each "tag" in the summary information
@@ -15,7 +15,7 @@ module.exports = {
      * @type String
      * @required
      */
-    acronym: "xfe",
+    acronym: "XF",
     /**
      * Description for this integration which is displayed in the Polarity integrations user interface
      *
@@ -23,7 +23,7 @@ module.exports = {
      * @optional
      */
     description: "TODO x force exchange integration description",
-    entityTypes: [&#39;ipv4&#39;,&#39;url&#39;,&#39;hash&#39;],
+    entityTypes: ['ipv4','url','hash'],
     /**
      * An array of style files (css or less) that will be included for your integration. Any styles specified in
      * the below files can be used in your custom template.
@@ -32,7 +32,7 @@ module.exports = {
      * @optional
      */
     "styles": [
-        "./styles/qradar.less"
+        "./styles/x-force-exchange.less"
     ],
     /**
      * Provide custom component logic and template for rendering the integration details block.  If you do not
@@ -44,18 +44,18 @@ module.exports = {
      */
     block: {
         component: {
-            file: "./components/x force exchange-block.js"
+            file: "./components/x-force-exchange-block.js"
         },
         template: {
-            file: "./templates/x force exchange-block.hbs"
+            file: "./templates/x-force-exchange-block.hbs"
         }
     },
     summary: {
         component: {
-            file: './components/x force exchange-summary.js'
+            file: './components/x-force-exchange-summary.js'
         },
         template: {
-            file: './templates/x force exchange-summary.hbs'
+            file: './templates/x-force-exchange-summary.hbs'
         }
     },
     request: {
@@ -101,11 +101,29 @@ module.exports = {
      */
     options: [
         {
-            key: "exampleKey",
-            name: "exampleName",
-            description: "example description of this option",
+            key: "host",
+            name: "X-Force Exchange Host",
+            description: "The host to use for the X-Force Exchange API",
             default: "",
             type: "text",
+            userCanEdit: false,
+            adminOnly: true
+        },
+        {
+            key: "apikey",
+            name: "API Key",
+            description: "API key to use for authentication with X-Force Exchange",
+            default: "",
+            type: "text",
+            userCanEdit: false,
+            adminOnly: true
+        },
+        {
+            key: "password",
+            name: "Password",
+            description: "Password to use for authentication with X-Force Exchange",
+            default: "",
+            type: "password",
             userCanEdit: false,
             adminOnly: true
         }
