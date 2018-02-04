@@ -23,7 +23,7 @@ module.exports = {
      * @optional
      */
     description: "TODO x force exchange integration description",
-    entityTypes: ['ipv4','url','hash'],
+    entityTypes: ['IPv4'],
     /**
      * An array of style files (css or less) that will be included for your integration. Any styles specified in
      * the below files can be used in your custom template.
@@ -90,7 +90,7 @@ module.exports = {
         // the directory you specify is writable by the `polarityd:polarityd` user and group.
 
         //directoryPath: '/var/log/polarity-integrations',
-        level: 'info',  //trace, debug, info, warn, error, fatal
+        level: 'trace',  //trace, debug, info, warn, error, fatal
     },
     /**
      * Options that are displayed to the user/admin in the Polarity integration user-interface.  Should be structured
@@ -104,7 +104,7 @@ module.exports = {
             key: "host",
             name: "X-Force Exchange Host",
             description: "The host to use for the X-Force Exchange API",
-            default: "",
+            default: "https://api.xforce.ibmcloud.com",
             type: "text",
             userCanEdit: false,
             adminOnly: true
