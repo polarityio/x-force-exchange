@@ -23,7 +23,7 @@ module.exports = {
      * @optional
      */
     description: "TODO x force exchange integration description",
-    entityTypes: ['IPv4'],
+    entityTypes: ['IPv4', 'url', 'domain'],
     /**
      * An array of style files (css or less) that will be included for your integration. Any styles specified in
      * the below files can be used in your custom template.
@@ -124,6 +124,15 @@ module.exports = {
             description: "Password to use for authentication with X-Force Exchange",
             default: "",
             type: "password",
+            userCanEdit: false,
+            adminOnly: true
+        },
+        {
+            key: "minimumScore",
+            name: "Minimum Score",
+            description: "Minimum score necessary to display a matching entry.",
+            default: 0,
+            type: "number",
             userCanEdit: false,
             adminOnly: true
         }

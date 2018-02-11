@@ -6,13 +6,15 @@ polarity.export = PolarityComponent.extend({
 
         tags.push(details.score);
 
-        if (details.geo.countrycode) {
+        if (details.geo && details.geo.countrycode) {
             tags.push(details.geo.countrycode);
         }
 
-        details.tags.forEach(function (tag) {
-            tags.push(tag);
-        });
+        if (details.tags) {
+            details.tags.forEach(function (tag) {
+                tags.push(tag);
+            });
+        }
 
         return tags;
     })

@@ -1,13 +1,16 @@
 <div class="details-container">
     <div class="item">
+        {{#if hasReason}}
         <p>
             Reason:
             <i>{{details.reason}}</i>
         </p>
+        {{/if}} {{#if hasDescription}}
         <p>
             Description:
             <i>{{details.reasonDescription}}</i>
         </p>
+        {{/if}}
         <p>
             Score:
             <b>{{details.score}}</b>
@@ -16,7 +19,7 @@
         {{#if hasCountry}}
         <p>
             Geo:
-            <b>{{details.geo.countrycode}}</b> -
+            <b>{{details.geo.countrycode}}</b> {{#if hasCountryCode}}-{{/if}}
             <b>{{details.geo.country}}</b>
         </p>
         {{/if}} {{#if hasCategories}}
