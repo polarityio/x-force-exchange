@@ -1,54 +1,39 @@
 <div class="details-container">
     <div class="item">
-        {{#if hasReason}}
+        {{#each details.titledProperties as |prop|}}
         <p>
-            Reason:
-            <i>{{details.reason}}</i>
+            {{prop.key}}:
+            <b>{{prop.value}}</b>
         </p>
-        {{/if}} {{#if hasDescription}}
+        {{/each}}
+
         <p>
-            Description:
-            <i>{{details.reasonDescription}}</i>
-        </p>
-        {{/if}}
-        <p>
-            Score:
-            <b>{{details.score}}</b>
+            <a href="{{details.link}}">View in X-Force Exchange</a>
         </p>
 
-        {{#if hasCountry}}
-        <p>
-            Geo:
-            <b>{{details.geo.countrycode}}</b> {{#if hasCountryCode}}-{{/if}}
-            <b>{{details.geo.country}}</b>
-        </p>
-        {{/if}} {{#if hasCategories}}
+        {{#each details.headerLists as |list|}}
         <h5>
-            <i class="bts bt-fw bt-label h5"></i> Categories
+            <i class="bts bt-fw bt-label h5"></i> {{list.header}}
         </h5>
         <ul>
-            {{#each-in details.cats as |key value|}}
+            {{#each list.items as |item|}}
             <li>
-                <span>{{key}}:
-                    <b>{{value}}</b>
+                <span>{{item.key}}
+                    <i>{{list.value}}</i>
                 </span>
             </li>
-            {{/each-in}}
+            {{/each}}
         </ul>
-        {{/if}} {{#if hasTags}}
-        <h5>
-            <i class="bts bt-fw bt-label h5"></i> Tags
-        </h5>
+        {{/each}}
         <div class="tag-container">
             <ul>
                 {{#each details.tags as |tag|}}
                 <li class="integration-summary-tag integration-border-color">
-                    <span>{{tag.name}}</span>
+                    <span>{{tag}}</span>
                 </li>
                 {{/each}}
             </ul>
         </div>
-        {{/if}}
 
         <div style="clear:both; margin-bottom: 5px;"></div>
     </div>

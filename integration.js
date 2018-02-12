@@ -16,6 +16,91 @@ function getRequestOptions(options) {
     return opts;
 }
 
+function transformResult(entity, body) {
+    let details = {
+        titledProperties: [], // {key: 0, value: 1}
+        headerLists: [], // {key: 0, value: 1}
+        tags: [] // list of strings
+    };
+
+    Logger.trace({ ip: entity.value }, 'Transforming entity');
+
+    details.titledProperties.push({
+        key: 'Score',
+        value: body.score
+    });
+
+    if (entity.isIP) {
+
+        details.titledProperties.push({
+            key: 'Reason: ',
+            value: body.reason
+        });
+
+        if (body.geo) {
+            if (body.geo.country && body.geo.countrycode) {
+                details.titledProperties.push({
+                    key: 'Country',
+                    value: body.geo.country + ' - ' + body.geo.countrycode
+                });
+            } else if (body.geo.country) {
+                details.titledProperties.push({
+                    key: 'Country',
+                    value: body.geo.country
+                });
+            } else if (body.geo.countrycode) {
+                details.titledProperties.push({
+                    key: 'Country',
+                    value: body.geo.countrycode
+                });
+            }
+        }
+
+        if (body.cats && Object.keys(body.cats) > 0) {
+            let list = {
+                header: 'Categories',
+                items: []
+            };
+
+            for (k in body.cats) {
+                list.items.push({
+                    key: k,
+                    value: body.cats[k]
+                });
+            }
+
+            details.headerLists.push(list);
+        }
+
+        details.raw = body;
+        details.link = 'https://exchange.xforce.ibmcloud.com/ip/' + entity.value;
+    } else if (entity.isDomain || entity.isURL) {
+
+
+        details.headerLists.push({
+
+        })
+
+        for (k in body.cats) {
+            details.tags.push(k);
+        }
+
+        details.raw = body.result;
+        details.link = 'https://exchange.xforce.ibmcloud.com/url/' + entity.value;
+
+    } else if (entity.isHash) {
+        details.link = 'https://exchange.xforce.ibmcloud.com/malware/' + entity.value;
+    } else {
+        throw new Error('if this error occures it means you added data ' +
+            'types in config.js without updating the code in integration.js');
+    }
+
+    Logger.trace({ details: details }, 'Transformed details');
+
+
+    return details;
+}
+
 function doLookup(entities, options, callback) {
     Logger.trace({ entities: entities, options: options }, 'Entities received');
 
@@ -25,76 +110,52 @@ function doLookup(entities, options, callback) {
     Logger.trace({ minimumScore: minimumScore });
 
     async.each(entities, (entity, done) => {
+        Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
         let requestOptions = getRequestOptions(options);
 
         if (entity.isIP) {
             requestOptions.url = options.host + '/ipr/' + entity.value;
-            Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
-
-            request(requestOptions, function (err, resp, body) {
-                Logger.trace({ error: err, response: resp, body: body }, 'Results of lookup');
-
-                if (err) {
-                    done(err);
-                    return;
-                }
-
-                Logger.trace({ minimumScore: minimumScore, resultScore: body.score, comparison: body.score < minimumScore });
-
-                if (body.score < minimumScore) {
-                    done();
-                    return;
-                }
-
-                results.push({
-                    entity: entity,
-                    data: {
-                        summary: ['test'],
-                        details: body
-                    }
-                });
-                done();
-            });
         } else if (entity.isURL || entity.isDomain) {
             requestOptions.url = options.host + '/url/' + entity.value;
-            Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
-
-            request(requestOptions, function (err, resp, body) {
-                Logger.trace({ error: err, response: resp, body: body }, 'Results of lookup');
-
-                if (err) {
-                    done(err);
-                    return;
-                }
-
-                if (!body || !body.result) {
-                    done();
-                    return;
-                }
-
-                Logger.trace({ minimumScore: minimumScore, resultScore: body.result.score, comparison: body.result.score < minimumScore });
-
-                if (body.result.score < minimumScore) {
-                    done();
-                    return;
-                }
-
-                let detail = body.result;
-                detail.tags = body.tags;
-
-                results.push({
-                    entity: entity,
-                    data: {
-                        summary: ['test'],
-                        details: detail
-                    }
-                });
-
-                done();
-            });
+        } else if (entity.isHash) {
+            requestOptions.url = options.host + '/malware/' + entity.value;
         } else {
             done();
+            return;
         }
+
+        request(requestOptions, function (err, resp, body) {
+            Logger.trace({ error: err, body: body }, 'Results of lookup');
+
+            if (err) {
+                done(err);
+                return;
+            }
+
+            if (!body) {
+                done();
+                return;
+            }
+
+            if (body.score < minimumScore) {
+                done();
+                return;
+            }
+
+            let result = {
+                entity: entity,
+                data: {
+                    summary: ['test'],
+                    details: transformResult(entity, body)
+                }
+            };
+
+            Logger.trace({ result: result }, 'Result added to list');
+
+            results.push(result);
+
+            done();
+        });
     }, (err) => {
         Logger.trace({ results: results }, 'All entity lookups completed, returning results to client');
         callback(err, results);

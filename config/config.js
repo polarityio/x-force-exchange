@@ -23,7 +23,7 @@ module.exports = {
      * @optional
      */
     description: "TODO x force exchange integration description",
-    entityTypes: ['IPv4', 'url', 'domain'],
+    entityTypes: ['IPv4', 'url', 'domain', 'hash'],
     /**
      * An array of style files (css or less) that will be included for your integration. Any styles specified in
      * the below files can be used in your custom template.
@@ -130,7 +130,7 @@ module.exports = {
         {
             key: "minimumScore",
             name: "Minimum Score",
-            description: "Minimum score necessary to display a matching entry.",
+            description: "Minimum threat score necessary to display a matching entry.",
             default: 0,
             type: "number",
             userCanEdit: false,

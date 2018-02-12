@@ -1,9 +1,9 @@
 polarity.export = PolarityComponent.extend({
     details: Ember.computed.alias('block.data.details'),
     tags: Ember.computed(function () {
-        var details = this.get('block.data.details');
+        var details = this.get('block.data.details').raw;
         var tags = [];
-
+ 
         tags.push(details.score);
 
         if (details.geo && details.geo.countrycode) {
