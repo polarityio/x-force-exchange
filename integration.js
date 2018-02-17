@@ -8,6 +8,13 @@ let requestOptions = {
     json: true
 };
 
+const risk = {
+    'high': 3,
+    'medium': 2,
+    'low': 1,
+    '': 0
+}
+
 const DATA_TYPE_ERROR = 'if this error occures it means you added data ' +
     'types in config.js without updating the code in integration.js';
 
@@ -25,8 +32,9 @@ function doLookup(entities, options, callback) {
 
     let results = [];
     let minimumScore = options.minimumScore;
+    let minimumRisk = options.minimumRisk;
 
-    Logger.trace({ minimumScore: minimumScore });
+    Logger.trace({ minimumScore: minimumScore, minimumRisk: minimumRisk });
 
     async.each(entities, (entity, done) => {
         Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
@@ -62,13 +70,24 @@ function doLookup(entities, options, callback) {
                 return;
             }
 
-            let score = body.score ? body.score : (body.result ? body.result.score : body.score)
+            if (entity.isHash) {
+                let riskLevel = body.malware.risk;
 
-            Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
+                Logger.trace({ risk: riskLevel, minimumRisk: minimumRisk }, 'Checking minimum score');
 
-            if (score < minimumScore) {
-                done();
-                return;
+                if (risk[riskLevel] < risk[minimumRisk]) {
+                    done();
+                    return;
+                }
+            } else {
+                let score = body.score ? body.score : (body.result ? body.result.score : body.score)
+
+                Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
+
+                if (score < minimumScore) {
+                    done();
+                    return;
+                }
             }
 
             let result = {
@@ -142,6 +161,13 @@ function validateOptions(options, callback) {
             key: 'minimumScore',
             message: 'You must provide a valid, numeric, minimum score for Polarity to display.'
         })
+    }
+
+    if (typeof options.minimumRisk.value !== 'string' || !['high', 'medium', 'low', ''].includes(options.minimumRisk.value)) {
+        errors.push({
+            key: 'minimumRisk',
+            message: 'Minimum risk must be either "high", "medium", "low", or "" (blank).'
+        });
     }
 
     callback(null, errors);

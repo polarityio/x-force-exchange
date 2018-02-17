@@ -2,19 +2,28 @@
 
 ![image](https://img.shields.io/badge/status-beta-green.svg)
 
-## x force exchange Integration Options
+## X-Force Exchange Integration Options
 
-### Option 1
+### Host
 
-Describe option 1 here.
+The host to use for the X-Force Exchange API.
 
-### Option 2
+### API Key
 
-Describe option 2 here.
+API key to use for authentication with X-Force Exchange.
 
-### Option 3
+### Password
 
-Describe option 3 here.
+Password to use for authentication with X-Force Exchange.
+
+### Minimum Score
+
+Minimum threat score necessary to display a matching entry (does not apply to malware entities).
+
+### Minimum Risk
+
+Minimum risk level necessary to display a matching entry (only applies to malware entities).
+
 
 ## Polarity
 

@@ -140,7 +140,7 @@ module.exports = {
             key: "minimumRisk",
             name: "Minimum Malware Risk",
             description: "Minimum risk level necessary to display a matching entry (only applies to malware entities).",
-            default: "blue",
+            default: "medium",
             type: "text",
             userCanEdit: false,
             adminOnly: true
