@@ -3,6 +3,7 @@ let request = require('request');
 let config = require('./config/config');
 let Transformer = require('./transformer');
 
+let transformer;
 let Logger;
 let requestOptions = {
     json: true
@@ -13,16 +14,17 @@ const risk = {
     'medium': 2,
     'low': 1,
     '': 0
-}
+};
 
 const DATA_TYPE_ERROR = 'if this error occures it means you added data ' +
     'types in config.js without updating the code in integration.js';
 
 function getRequestOptions(options) {
     let opts = JSON.parse(JSON.stringify(requestOptions));
-    opts.auth = {};
-    opts.auth.user = options.apikey;
-    opts.auth.password = options.password;
+    opts.auth = {
+        user: options.apikey,
+        password: options.password
+    };
 
     return opts;
 }
@@ -60,13 +62,14 @@ function doLookup(entities, options, callback) {
             }
 
             if (resp.statusCode !== 200) {
-                Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
-                done();
-                return;
-            }
+                if (resp.statusCode === 404) {
+                    Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+                    done();
+                } else {
+                    Logger.error({ error: body }, 'Error looking up entity in x-force exchange');
+                    done(body);
+                }
 
-            if (!body) {
-                done();
                 return;
             }
 
@@ -80,7 +83,7 @@ function doLookup(entities, options, callback) {
                     return;
                 }
             } else {
-                let score = body.score ? body.score : (body.result ? body.result.score : body.score)
+                let score = body.score ? body.score : (body.result ? body.result.score : body.score);
 
                 Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
 
@@ -94,7 +97,7 @@ function doLookup(entities, options, callback) {
                 entity: entity,
                 data: {
                     summary: ['test'],
-                    details: new Transformer(Logger).transform(entity, body)
+                    details: transformer.transform(entity, body)
                 }
             };
 
@@ -112,6 +115,7 @@ function doLookup(entities, options, callback) {
 
 function startup(logger) {
     Logger = logger;
+    transformer = new Transformer(logger);
 
     if (typeof config.request.cert === 'string' && config.request.cert.length > 0) {
         requestOptions.cert = fs.readFileSync(config.request.cert);
@@ -160,7 +164,7 @@ function validateOptions(options, callback) {
         errors.push({
             key: 'minimumScore',
             message: 'You must provide a valid, numeric, minimum score for Polarity to display.'
-        })
+        });
     }
 
     if (typeof options.minimumRisk.value !== 'string' || !['high', 'medium', 'low', ''].includes(options.minimumRisk.value)) {
