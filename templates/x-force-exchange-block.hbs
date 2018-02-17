@@ -18,21 +18,17 @@
         <ul>
             {{#each list.items as |item|}}
             <li>
-                <span>{{item.key}}
-                    <i>{{list.value}}</i>
-                </span>
+                <span>{{item}}</span>
             </li>
             {{/each}}
         </ul>
         {{/each}}
         <div class="tag-container">
-            <ul>
-                {{#each details.tags as |tag|}}
-                <li class="integration-summary-tag integration-border-color">
-                    <span>{{tag}}</span>
-                </li>
-                {{/each}}
-            </ul>
+            {{#each details.tags as |tag|}}
+            <span class="integration-summary-tag integration-border-color">
+                <span>{{tag}}</span>
+            </span>
+            {{/each}}
         </div>
 
         <div style="clear:both; margin-bottom: 5px;"></div>

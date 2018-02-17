@@ -1,11 +1,15 @@
 let async = require('async');
 let request = require('request');
 let config = require('./config/config');
+let Transformer = require('./transformer');
 
 let Logger;
 let requestOptions = {
     json: true
 };
+
+const DATA_TYPE_ERROR = 'if this error occures it means you added data ' +
+    'types in config.js without updating the code in integration.js';
 
 function getRequestOptions(options) {
     let opts = JSON.parse(JSON.stringify(requestOptions));
@@ -14,91 +18,6 @@ function getRequestOptions(options) {
     opts.auth.password = options.password;
 
     return opts;
-}
-
-function transformResult(entity, body) {
-    let details = {
-        titledProperties: [], // {key: 0, value: 1}
-        headerLists: [], // {key: 0, value: 1}
-        tags: [] // list of strings
-    };
-
-    Logger.trace({ ip: entity.value }, 'Transforming entity');
-
-    details.titledProperties.push({
-        key: 'Score',
-        value: body.score
-    });
-
-    if (entity.isIP) {
-
-        details.titledProperties.push({
-            key: 'Reason: ',
-            value: body.reason
-        });
-
-        if (body.geo) {
-            if (body.geo.country && body.geo.countrycode) {
-                details.titledProperties.push({
-                    key: 'Country',
-                    value: body.geo.country + ' - ' + body.geo.countrycode
-                });
-            } else if (body.geo.country) {
-                details.titledProperties.push({
-                    key: 'Country',
-                    value: body.geo.country
-                });
-            } else if (body.geo.countrycode) {
-                details.titledProperties.push({
-                    key: 'Country',
-                    value: body.geo.countrycode
-                });
-            }
-        }
-
-        if (body.cats && Object.keys(body.cats) > 0) {
-            let list = {
-                header: 'Categories',
-                items: []
-            };
-
-            for (k in body.cats) {
-                list.items.push({
-                    key: k,
-                    value: body.cats[k]
-                });
-            }
-
-            details.headerLists.push(list);
-        }
-
-        details.raw = body;
-        details.link = 'https://exchange.xforce.ibmcloud.com/ip/' + entity.value;
-    } else if (entity.isDomain || entity.isURL) {
-
-
-        details.headerLists.push({
-
-        })
-
-        for (k in body.cats) {
-            details.tags.push(k);
-        }
-
-        details.raw = body.result;
-        details.link = 'https://exchange.xforce.ibmcloud.com/url/' + entity.value;
-
-    } else if (entity.isHash) {
-        details.link = 'https://exchange.xforce.ibmcloud.com/malware/' + entity.value;
-    } else {
-        throw new Error('if this error occures it means you added data ' +
-            'types in config.js without updating the code in integration.js');
-    }
-
-    Logger.trace({ details: details }, 'Transformed details');
-
-
-    return details;
 }
 
 function doLookup(entities, options, callback) {
@@ -120,8 +39,8 @@ function doLookup(entities, options, callback) {
         } else if (entity.isHash) {
             requestOptions.url = options.host + '/malware/' + entity.value;
         } else {
-            done();
-            return;
+            Logger.error({ entity: entity }, DATA_TYPE_ERROR);
+            throw new Error(DATA_TYPE_ERROR);
         }
 
         request(requestOptions, function (err, resp, body) {
@@ -132,12 +51,22 @@ function doLookup(entities, options, callback) {
                 return;
             }
 
+            if (resp.statusCode !== 200) {
+                Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+                done();
+                return;
+            }
+
             if (!body) {
                 done();
                 return;
             }
 
-            if (body.score < minimumScore) {
+            let score = body.score ? body.score : (body.result ? body.result.score : body.score)
+
+            Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
+
+            if (score < minimumScore) {
                 done();
                 return;
             }
@@ -146,7 +75,7 @@ function doLookup(entities, options, callback) {
                 entity: entity,
                 data: {
                     summary: ['test'],
-                    details: transformResult(entity, body)
+                    details: new Transformer(Logger).transform(entity, body)
                 }
             };
 
@@ -190,7 +119,7 @@ function startup(logger) {
     }
 }
 
-function validateOption(errors, options, optionName, errMessage) {
+function validateStringOption(errors, options, optionName, errMessage) {
     if (typeof options[optionName].value !== 'string' ||
         (typeof options[optionName].value === 'string' && options[optionName].value.length === 0)) {
         errors.push({
@@ -203,9 +132,9 @@ function validateOption(errors, options, optionName, errMessage) {
 function validateOptions(options, callback) {
     let errors = [];
 
-    validateOption(errors, options, 'host', 'You must provide a valid host for the IBM X-Force Exchange server.');
-    validateOption(errors, options, 'apikey', 'You must provide a valid apikey for authentication with the IBM X-Force Exchange server.');
-    validateOption(errors, options, 'password', 'You must provide a valid password for authentication with the IBM X-Force Exchange server.');
+    validateStringOption(errors, options, 'host', 'You must provide a valid host for the IBM X-Force Exchange server.');
+    validateStringOption(errors, options, 'apikey', 'You must provide a valid apikey for authentication with the IBM X-Force Exchange server.');
+    validateStringOption(errors, options, 'password', 'You must provide a valid password for authentication with the IBM X-Force Exchange server.');
 
     let minimumScore = Number(options.minimumScore.value);
     if (options.minimumScore.value.length === 0 || !Number.isInteger(minimumScore)) {
