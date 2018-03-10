@@ -64,6 +64,10 @@ function doLookup(entities, options, callback) {
             if (resp.statusCode !== 200) {
                 if (resp.statusCode === 404) {
                     Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+                    results.push({
+                        entity: entity,
+                        data: null
+                    });
                     done();
                 } else {
                     Logger.error({ error: body }, 'Error looking up entity in x-force exchange');
