@@ -5,9 +5,8 @@ let Transformer = require('./transformer');
 
 let transformer;
 let Logger;
-let requestOptions = {
-    json: true
-};
+let requestWithDefaults;
+
 
 const risk = {
     'high': 3,
@@ -16,31 +15,33 @@ const risk = {
     '': 0
 };
 
-const DATA_TYPE_ERROR = 'if this error occures it means you added data ' +
+const DATA_TYPE_ERROR = 'if this error occurs it means you added data ' +
     'types in config.js without updating the code in integration.js';
 
-function getRequestOptions(options) {
-    let opts = JSON.parse(JSON.stringify(requestOptions));
-    opts.auth = {
-        user: options.apikey,
-        password: options.password
-    };
-
-    return opts;
-}
-
 function doLookup(entities, options, callback) {
-    Logger.trace({ entities: entities, options: options }, 'Entities received');
+    Logger.trace({entities: entities, options: options}, 'Entities received');
 
     let results = [];
     let minimumScore = options.minimumScore;
     let minimumRisk = options.minimumRisk;
 
-    Logger.trace({ minimumScore: minimumScore, minimumRisk: minimumRisk });
+    Logger.trace({minimumScore: minimumScore, minimumRisk: minimumRisk});
 
     async.each(entities, (entity, done) => {
-        Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
-        let requestOptions = getRequestOptions(options);
+        Logger.trace({entity: entity}, 'Looking up entity in x-force exchange');
+
+        // x-force only seems to like URLs that start with http or https
+        if(entity.isURL && !_isValidUrl(entity.value)){
+            done(null);
+            return;
+        }
+
+        let requestOptions = {
+            auth: {
+                user: options.apikey,
+                password: options.password
+            }
+        };
 
         if (entity.isIP) {
             requestOptions.url = options.host + '/ipr/' + entity.value;
@@ -49,38 +50,51 @@ function doLookup(entities, options, callback) {
         } else if (entity.isHash) {
             requestOptions.url = options.host + '/malware/' + entity.value;
         } else {
-            Logger.error({ entity: entity }, DATA_TYPE_ERROR);
+            Logger.error({entity: entity}, DATA_TYPE_ERROR);
             throw new Error(DATA_TYPE_ERROR);
         }
 
-        request(requestOptions, function (err, resp, body) {
-            Logger.trace({ error: err, body: body }, 'Results of lookup');
+        requestWithDefaults(requestOptions, function (err, resp, body) {
+            Logger.trace({error: err, body: body}, 'Results of lookup');
 
             if (err) {
-                done(err);
+                done({
+                    detail: 'Error executing HTTPS request',
+                    debug: err
+                });
                 return;
             }
 
             if (resp.statusCode !== 200) {
                 if (resp.statusCode === 404) {
-                    Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+                    Logger.trace({id: entity.value}, 'Entity not in x-force exhange');
                     results.push({
                         entity: entity,
                         data: null
                     });
                     done();
+                } else if (resp.statusCode === 400) {
+                    Logger.error({error: body}, 'Bad Request');
+                    done({
+                        detail: 'Unexpected HTTP Status Code Received',
+                        debug: body,
+                        entityValue: entity.value
+                    });
                 } else {
-                    Logger.error({ error: body }, 'Error looking up entity in x-force exchange');
-                    done(body);
+                    Logger.error({error: body}, 'Error looking up entity in x-force exchange');
+                    done({
+                        detail: 'Unexpected HTTP Status Code Received',
+                        debug: body,
+                        response: resp
+                    });
                 }
-
                 return;
             }
 
             if (entity.isHash) {
                 let riskLevel = body.malware.risk;
 
-                Logger.trace({ risk: riskLevel, minimumRisk: minimumRisk }, 'Checking minimum score');
+                Logger.trace({risk: riskLevel, minimumRisk: minimumRisk}, 'Checking minimum score');
 
                 if (risk[riskLevel] < risk[minimumRisk]) {
                     done();
@@ -89,7 +103,7 @@ function doLookup(entities, options, callback) {
             } else {
                 let score = body.score ? body.score : (body.result ? body.result.score : body.score);
 
-                Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
+                Logger.trace({score: score, minimumScore: minimumScore}, 'Checking minimum score');
 
                 if (score < minimumScore) {
                     done();
@@ -105,45 +119,58 @@ function doLookup(entities, options, callback) {
                 }
             };
 
-            Logger.trace({ result: result }, 'Result added to list');
+            Logger.trace({result: result}, 'Result added to list');
 
             results.push(result);
 
             done();
         });
     }, (err) => {
-        Logger.trace({ results: results }, 'All entity lookups completed, returning results to client');
+        Logger.trace({results: results}, 'All entity lookups completed, returning results to client');
         callback(err, results);
     });
+}
+
+// x-force only seems to accept URLs that start with http or https
+function _isValidUrl(url){
+    if(url.startsWith('http') || url.startsWith('https')){
+        return true;
+    }
+    return false;
 }
 
 function startup(logger) {
     Logger = logger;
     transformer = new Transformer(logger);
+    let defaults = {};
 
     if (typeof config.request.cert === 'string' && config.request.cert.length > 0) {
-        requestOptions.cert = fs.readFileSync(config.request.cert);
+        defaults.cert = fs.readFileSync(config.request.cert);
     }
 
     if (typeof config.request.key === 'string' && config.request.key.length > 0) {
-        requestOptions.key = fs.readFileSync(config.request.key);
+        defaults.key = fs.readFileSync(config.request.key);
     }
 
     if (typeof config.request.passphrase === 'string' && config.request.passphrase.length > 0) {
-        requestOptions.passphrase = config.request.passphrase;
+        defaults.passphrase = config.request.passphrase;
     }
 
     if (typeof config.request.ca === 'string' && config.request.ca.length > 0) {
-        requestOptions.ca = fs.readFileSync(config.request.ca);
+        defaults.ca = fs.readFileSync(config.request.ca);
     }
 
     if (typeof config.request.proxy === 'string' && config.request.proxy.length > 0) {
-        requestOptions.proxy = config.request.proxy;
+        defaults.proxy = config.request.proxy;
     }
 
     if (typeof config.request.rejectUnauthorized === 'boolean') {
-        requestOptions.rejectUnauthorized = config.request.rejectUnauthorized;
+        defaults.rejectUnauthorized = config.request.rejectUnauthorized;
     }
+
+    defaults.json = true;
+
+    requestWithDefaults = request.defaults(defaults);
 }
 
 function validateStringOption(errors, options, optionName, errMessage) {

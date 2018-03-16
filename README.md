@@ -24,6 +24,9 @@ Minimum threat score necessary to display a matching entry (does not apply to ma
 
 Minimum risk level necessary to display a matching entry (only applies to malware entities).
 
+## Installation Instructions
+
+Installation instructions for integrations are provided on the [PolarityIO GitHub Page](https://polarityio.github.io/).
 
 ## Polarity
 

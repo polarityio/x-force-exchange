@@ -1,16 +1,14 @@
 <div class="details-container">
     <div class="item">
+        <p>
+            <a href="{{details.link}}">View in X-Force Exchange</a>
+        </p>
         {{#each details.titledProperties as |prop|}}
         <p>
             {{prop.key}}:
             <b>{{prop.value}}</b>
         </p>
         {{/each}}
-
-        <p>
-            <a href="{{details.link}}">View in X-Force Exchange</a>
-        </p>
-
         {{#each details.headerLists as |list|}}
         <h5>
             <i class="bts bt-fw bt-label h5"></i> {{list.header}}
@@ -30,7 +28,6 @@
             </span>
             {{/each}}
         </div>
-
         <div style="clear:both; margin-bottom: 5px;"></div>
     </div>
 </div>
