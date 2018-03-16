@@ -11,7 +11,7 @@ module.exports = class Transformer {
         this.logger.trace({ ip: entity.value, body: body }, 'Transforming body to result');
 
         if (entity.isIP) {
-            details.addTitledProperty('Score', body.score);
+            details.addTitledProperty('Risk Score', body.score);
             details.addSummary(body.score);
             details.addTitledProperty('Reason', body.reason);
 

@@ -130,7 +130,7 @@ module.exports = {
         {
             key: "minimumScore",
             name: "Minimum Score",
-            description: "Minimum threat score necessary to display a matching entry (does not apply to malware entities).",
+            description: "Minimum risk score necessary to display a matching entry (does not apply to malware entities).",
             default: 0,
             type: "number",
             userCanEdit: false,
@@ -139,7 +139,7 @@ module.exports = {
         {
             key: "minimumRisk",
             name: "Minimum Malware Risk",
-            description: "Minimum risk level necessary to display a matching entry (only applies to malware entities).",
+            description: 'Minimum risk level necessary to display a matching entry (only applies to malware entities).  Valid values are "low", "medium" and "high"',
             default: "medium",
             type: "text",
             userCanEdit: false,
