@@ -19,16 +19,16 @@ const DATA_TYPE_ERROR = 'if this error occurs it means you added data ' +
     'types in config.js without updating the code in integration.js';
 
 function doLookup(entities, options, callback) {
-    Logger.trace({ entities: entities, options: options }, 'Entities received');
+    Logger.trace({entities: entities, options: options}, 'Entities received');
 
     let results = [];
     let minimumScore = options.minimumScore;
     let minimumRisk = options.minimumRisk;
 
-    Logger.trace({ minimumScore: minimumScore, minimumRisk: minimumRisk });
+    Logger.trace({minimumScore: minimumScore, minimumRisk: minimumRisk});
 
     async.each(entities, (entity, done) => {
-        Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
+        Logger.trace({entity: entity}, 'Looking up entity in x-force exchange');
 
         // x-force only seems to like URLs that start with http or https
         if(entity.isURL && !_isValidUrl(entity.value)){
@@ -37,7 +37,7 @@ function doLookup(entities, options, callback) {
         }
 
         let requestOptions = {
-            auth:{
+            auth: {
                 user: options.apikey,
                 password: options.password
             }
@@ -50,38 +50,51 @@ function doLookup(entities, options, callback) {
         } else if (entity.isHash) {
             requestOptions.url = options.host + '/malware/' + entity.value;
         } else {
-            Logger.error({ entity: entity }, DATA_TYPE_ERROR);
+            Logger.error({entity: entity}, DATA_TYPE_ERROR);
             throw new Error(DATA_TYPE_ERROR);
         }
 
         requestWithDefaults(requestOptions, function (err, resp, body) {
-            Logger.trace({ error: err, body: body }, 'Results of lookup');
+            Logger.trace({error: err, body: body}, 'Results of lookup');
 
             if (err) {
-                done(err);
+                done({
+                    detail: 'Error executing HTTPS request',
+                    debug: err
+                });
                 return;
             }
 
             if (resp.statusCode !== 200) {
                 if (resp.statusCode === 404) {
-                    Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+                    Logger.trace({id: entity.value}, 'Entity not in x-force exhange');
                     results.push({
                         entity: entity,
                         data: null
                     });
                     done();
+                } else if (resp.statusCode === 400) {
+                    Logger.error({error: body}, 'Bad Request');
+                    done({
+                        detail: 'Unexpected HTTP Status Code Received',
+                        debug: body,
+                        entityValue: entity.value
+                    });
                 } else {
-                    Logger.error({ error: body }, 'Error looking up entity in x-force exchange');
-                    done(body);
+                    Logger.error({error: body}, 'Error looking up entity in x-force exchange');
+                    done({
+                        detail: 'Unexpected HTTP Status Code Received',
+                        debug: body,
+                        response: resp
+                    });
                 }
-
                 return;
             }
 
             if (entity.isHash) {
                 let riskLevel = body.malware.risk;
 
-                Logger.trace({ risk: riskLevel, minimumRisk: minimumRisk }, 'Checking minimum score');
+                Logger.trace({risk: riskLevel, minimumRisk: minimumRisk}, 'Checking minimum score');
 
                 if (risk[riskLevel] < risk[minimumRisk]) {
                     done();
@@ -90,7 +103,7 @@ function doLookup(entities, options, callback) {
             } else {
                 let score = body.score ? body.score : (body.result ? body.result.score : body.score);
 
-                Logger.trace({ score: score, minimumScore: minimumScore }, 'Checking minimum score');
+                Logger.trace({score: score, minimumScore: minimumScore}, 'Checking minimum score');
 
                 if (score < minimumScore) {
                     done();
@@ -106,14 +119,14 @@ function doLookup(entities, options, callback) {
                 }
             };
 
-            Logger.trace({ result: result }, 'Result added to list');
+            Logger.trace({result: result}, 'Result added to list');
 
             results.push(result);
 
             done();
         });
     }, (err) => {
-        Logger.trace({ results: results }, 'All entity lookups completed, returning results to client');
+        Logger.trace({results: results}, 'All entity lookups completed, returning results to client');
         callback(err, results);
     });
 }
