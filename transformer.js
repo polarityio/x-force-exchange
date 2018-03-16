@@ -12,7 +12,7 @@ module.exports = class Transformer {
 
         if (entity.isIP) {
             details.addTitledProperty('Score', body.score);
-            details.addSummary(body.score)
+            details.addSummary(body.score);
             details.addTitledProperty('Reason', body.reason);
 
             if (body.geo) {
