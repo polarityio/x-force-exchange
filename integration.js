@@ -5,9 +5,8 @@ let Transformer = require('./transformer');
 
 let transformer;
 let Logger;
-let requestOptions = {
-    json: true
-};
+let requestWithDefaults;
+
 
 const risk = {
     'high': 3,
@@ -16,18 +15,8 @@ const risk = {
     '': 0
 };
 
-const DATA_TYPE_ERROR = 'if this error occures it means you added data ' +
+const DATA_TYPE_ERROR = 'if this error occurs it means you added data ' +
     'types in config.js without updating the code in integration.js';
-
-function getRequestOptions(options) {
-    let opts = JSON.parse(JSON.stringify(requestOptions));
-    opts.auth = {
-        user: options.apikey,
-        password: options.password
-    };
-
-    return opts;
-}
 
 function doLookup(entities, options, callback) {
     Logger.trace({ entities: entities, options: options }, 'Entities received');
@@ -40,7 +29,13 @@ function doLookup(entities, options, callback) {
 
     async.each(entities, (entity, done) => {
         Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
-        let requestOptions = getRequestOptions(options);
+
+        let requestOptions = {
+            auth:{
+                user: options.apikey,
+                password: options.password
+            }
+        };
 
         if (entity.isIP) {
             requestOptions.url = options.host + '/ipr/' + entity.value;
@@ -53,7 +48,7 @@ function doLookup(entities, options, callback) {
             throw new Error(DATA_TYPE_ERROR);
         }
 
-        request(requestOptions, function (err, resp, body) {
+        requestWithDefaults(requestOptions, function (err, resp, body) {
             Logger.trace({ error: err, body: body }, 'Results of lookup');
 
             if (err) {
@@ -120,30 +115,35 @@ function doLookup(entities, options, callback) {
 function startup(logger) {
     Logger = logger;
     transformer = new Transformer(logger);
+    let defaults = {};
 
     if (typeof config.request.cert === 'string' && config.request.cert.length > 0) {
-        requestOptions.cert = fs.readFileSync(config.request.cert);
+        defaults.cert = fs.readFileSync(config.request.cert);
     }
 
     if (typeof config.request.key === 'string' && config.request.key.length > 0) {
-        requestOptions.key = fs.readFileSync(config.request.key);
+        defaults.key = fs.readFileSync(config.request.key);
     }
 
     if (typeof config.request.passphrase === 'string' && config.request.passphrase.length > 0) {
-        requestOptions.passphrase = config.request.passphrase;
+        defaults.passphrase = config.request.passphrase;
     }
 
     if (typeof config.request.ca === 'string' && config.request.ca.length > 0) {
-        requestOptions.ca = fs.readFileSync(config.request.ca);
+        defaults.ca = fs.readFileSync(config.request.ca);
     }
 
     if (typeof config.request.proxy === 'string' && config.request.proxy.length > 0) {
-        requestOptions.proxy = config.request.proxy;
+        defaults.proxy = config.request.proxy;
     }
 
     if (typeof config.request.rejectUnauthorized === 'boolean') {
-        requestOptions.rejectUnauthorized = config.request.rejectUnauthorized;
+        defaults.rejectUnauthorized = config.request.rejectUnauthorized;
     }
+
+    defaults.json = true;
+
+    requestWithDefaults = request.defaults(defaults);
 }
 
 function validateStringOption(errors, options, optionName, errMessage) {
