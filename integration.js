@@ -30,6 +30,12 @@ function doLookup(entities, options, callback) {
     async.each(entities, (entity, done) => {
         Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
 
+        // x-force only seems to like URLs that start with http or https
+        if(entity.isURL && !_isValidUrl(entity.value)){
+            done(null);
+            return;
+        }
+
         let requestOptions = {
             auth:{
                 user: options.apikey,
@@ -110,6 +116,14 @@ function doLookup(entities, options, callback) {
         Logger.trace({ results: results }, 'All entity lookups completed, returning results to client');
         callback(err, results);
     });
+}
+
+// x-force only seems to accept URLs that start with http or https
+function _isValidUrl(url){
+    if(url.startsWith('http') || url.startsWith('https')){
+        return true;
+    }
+    return false;
 }
 
 function startup(logger) {
