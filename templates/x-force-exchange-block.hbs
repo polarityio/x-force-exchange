@@ -3,17 +3,17 @@
       <div class="p-link">
         <a href="{{details.link}}">View in X-Force Exchange {{fa-icon "external-link-square" class="external-link-icon"}}</a>
       </div>
+        <div class="p-title">{{fa-icon "info" fixedWidth=true}} Info</div>
         {{#each details.titledProperties as |prop|}}
-        <p>
-            {{prop.key}}:
-            <b>{{prop.value}}</b>
-        </p>
+          <div>
+            <span class="p-key">{{prop.key}}:</span>
+            <span class="p-value">{{prop.value}}</span>
+          </div>
         {{/each}}
+
         {{#each details.headerLists as |list|}}
           {{#if (gt list.items 0)}}
-            <h5>
-                <i class="bts bt-fw bt-label h5"></i> {{list.header}}
-            </h5>
+            <div class="p-title">{{fa-icon "label" fixedWidth=true}}{{list.header}}</div>
             <ul>
                 {{#each list.items as |item|}}
                   <li>
