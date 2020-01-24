@@ -10,16 +10,18 @@
         </p>
         {{/each}}
         {{#each details.headerLists as |list|}}
-        <h5>
-            <i class="bts bt-fw bt-label h5"></i> {{list.header}}
-        </h5>
-        <ul>
-            {{#each list.items as |item|}}
-            <li>
-                <span>{{item}}</span>
-            </li>
-            {{/each}}
-        </ul>
+          {{#if (gt list.items 0)}}
+            <h5>
+                <i class="bts bt-fw bt-label h5"></i> {{list.header}}
+            </h5>
+            <ul>
+                {{#each list.items as |item|}}
+                  <li>
+                    <span>{{item}}</span>
+                  </li>
+                {{/each}}
+            </ul>
+          {{/if}}
         {{/each}}
         <div class="tag-container">
             {{#each details.tags as |tag|}}
