@@ -12,13 +12,16 @@ module.exports = class Transformer {
 
     if (entity.isIP) {
       details.addTitledProperty('Risk Score', body.score);
-      details.addSummary(body.score);
+      details.addSummary(`Risk: ${body.score}`);
       details.addTitledProperty('Reason', body.reason);
+      if(body.reasonDescription){
+        details.addTitledProperty('Reason Description', body.reasonDescription);
+      }
 
       if (body.geo) {
         if (body.geo.country && body.geo.countrycode) {
           details.addTitledProperty('Country', body.geo.country + ' - ' + body.geo.countrycode);
-          details.addSummary(body.geo.countrycode);
+          details.addSummary(body.geo.country);
         } else if (body.geo.country) {
           details.addTitledProperty('Country', body.geo.country);
         } else if (body.geo.countrycode) {
@@ -33,11 +36,18 @@ module.exports = class Transformer {
         }
       }
 
+      if(Array.isArray(body.tags)){
+        body.tags.forEach((tag) => {
+          details.addSummary(tag.tag);
+          details.addTag(tag.tag);
+        });
+      }
+
       details.link = 'https://exchange.xforce.ibmcloud.com/ip/' + entity.value;
     } else if (entity.isDomain || entity.isURL) {
       if (body.result) {
-        details.addTitledProperty('Score', body.result.score);
-        details.addSummary(body.result.score);
+        details.addTitledProperty('Risk', body.result.score);
+        details.addSummary(`Risk: ${body.result.score}`);
 
         let cats = Object.keys(body.result.cats);
 
@@ -67,8 +77,8 @@ module.exports = class Transformer {
 
       details.link = 'https://exchange.xforce.ibmcloud.com/url/' + entity.value;
     } else if (entity.isHash) {
-      details.addSummary(body.malware.risk);
-      details.addSummary(body.malware.type);
+      details.addSummary(`Risk: ${body.malware.risk}`);
+      details.addSummary(`Type: ${body.malware.type}`);
 
       details.addTitledProperty('Risk', body.malware.risk);
       details.addTitledProperty('Type', body.malware.type);

@@ -1,35 +1,31 @@
-<div class="details-container">
-    <div class="item">
-      <div class="p-link">
-        <a href="{{details.link}}">View in X-Force Exchange {{fa-icon "external-link-square" class="external-link-icon"}}</a>
-      </div>
-        <div class="p-title">{{fa-icon "info-circle" fixedWidth=true}} Info</div>
-        {{#each details.titledProperties as |prop|}}
-          <div>
-            <span class="p-key">{{prop.key}}:</span>
-            <span class="p-value">{{prop.value}}</span>
-          </div>
-        {{/each}}
 
-        {{#each details.headerLists as |list|}}
-          {{#if (gt list.items 0)}}
-            <div class="p-title">{{fa-icon "label" fixedWidth=true}}{{list.header}}</div>
-            <ul>
-                {{#each list.items as |item|}}
-                  <li>
-                    <span>{{item}}</span>
-                  </li>
-                {{/each}}
-            </ul>
-          {{/if}}
-        {{/each}}
-        <div class="tag-container">
-            {{#each details.tags as |tag|}}
-            <span class="integration-summary-tag integration-border-color">
-                <span>{{tag}}</span>
-            </span>
-            {{/each}}
-        </div>
-        <div style="clear:both; margin-bottom: 5px;"></div>
-    </div>
+<div class="p-link">
+  <a href="{{details.link}}">View in X-Force Exchange {{fa-icon "external-link-square" class="external-link-icon"}}</a>
 </div>
+<div class="p-title">{{fa-icon "info-circle" fixedWidth=true}} Info</div>
+{{#each details.titledProperties as |prop|}}
+  <div>
+    <span class="p-key">{{prop.key}}:</span>
+    <span class="p-value">{{prop.value}}</span>
+  </div>
+{{/each}}
+
+{{#each details.headerLists as |list|}}
+  {{#if (gt list.items.length 0)}}
+    <div class="p-title">{{fa-icon "th-large" fixedWidth=true}} {{list.header}}</div>
+    <div>
+      {{#each list.items as |item|}}
+          <span class="tag">{{item}}</span>
+      {{/each}}
+    </div>
+  {{/if}}
+{{/each}}
+
+{{#if (gt details.tags.length 0)}}
+  <div class="tag-container">
+    <div class="p-title">{{fa-icon "tags" fixedWidth=true}} Tags</div>
+    {{#each details.tags as |tag|}}
+      <span class="tag">{{tag}}</span>
+    {{/each}}
+  </div>
+{{/if}}
