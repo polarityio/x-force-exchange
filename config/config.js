@@ -130,20 +130,66 @@ module.exports = {
         {
             key: "minimumScore",
             name: "Minimum Score",
-            description: "Minimum risk score necessary to display a matching entry (does not apply to malware entities).",
+            description: "Minimum risk score necessary to display a matching entry (does not apply to malware/hash entities). Valid values are 0 to 10.",
             default: 0,
             type: "number",
             userCanEdit: false,
             adminOnly: true
         },
         {
-            key: "minimumRisk",
+            key: 'minimumRisk',
             name: "Minimum Malware Risk",
-            description: 'Minimum risk level necessary to display a matching entry (only applies to malware entities).  Valid values are "low", "medium", and "high"',
-            default: "medium",
-            type: "text",
+            description: 'Minimum risk level necessary to display a matching entry (only applies to malware/hash entities).  Valid values are "low", "medium", and "high"',
+            default: {
+                value: 'low',
+                display: 'Low'
+            },
+            type: 'select',
+            options: [
+                {
+                    value: 'low',
+                    display: 'Low'
+                },
+                {
+                    value: 'medium',
+                    display: 'Medium'
+                },
+                {
+                    value: 'high',
+                    display: 'High'
+                }
+            ],
+            multiple: false,
+            userCanEdit: true,
+            adminOnly: false
+        },
+        {
+            key: 'blacklist',
+            name: 'Blacklist Domains and IPs',
+            description: 'Comma delimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
+            default: '',
+            type: 'text',
             userCanEdit: false,
-            adminOnly: true
+            adminOnly: false
+        },
+        {
+            key: 'domainBlacklistRegex',
+            name: 'Domain Black List Regex',
+            description:
+              'Domains that match the given regex will not be looked up (if blank, no domains will be black listed)',
+            default: '',
+            type: 'text',
+            userCanEdit: false,
+            adminOnly: false
+        },
+        {
+            key: 'ipBlacklistRegex',
+            name: 'IP Black List Regex',
+            description: 'IPs that match the given regex will not be looked up (if blank, no IPs will be black listed)',
+            default: '',
+            type: 'text',
+            userCanEdit: false,
+            adminOnly: false
         }
     ]
 };
