@@ -1,8 +1,13 @@
-let async = require('async');
-let request = require('request');
-let config = require('./config/config');
-let Transformer = require('./transformer');
+const async = require('async');
+const request = require('request');
+const config = require('./config/config');
+const Transformer = require('./transformer');
+const includes = require('lodash.includes');
 
+let previousDomainRegexAsString = '';
+let previousIpRegexAsString = '';
+let domainBlacklistRegex = null;
+let ipBlacklistRegex = null;
 let transformer;
 let Logger;
 let requestWithDefaults;
@@ -17,12 +22,70 @@ const risk = {
 const DATA_TYPE_ERROR =
   'if this error occurs it means you added data ' + 'types in config.js without updating the code in integration.js';
 
+function _setupRegexBlacklists(options) {
+  if (options.domainBlacklistRegex !== previousDomainRegexAsString && options.domainBlacklistRegex.length === 0) {
+    Logger.debug('Removing Domain Blacklist Regex Filtering');
+    previousDomainRegexAsString = '';
+    domainBlacklistRegex = null;
+  } else {
+    if (options.domainBlacklistRegex !== previousDomainRegexAsString) {
+      previousDomainRegexAsString = options.domainBlacklistRegex;
+      Logger.debug({ domainBlacklistRegex: previousDomainRegexAsString }, 'Modifying Domain Blacklist Regex');
+      domainBlacklistRegex = new RegExp(options.domainBlacklistRegex, 'i');
+    }
+  }
+
+  if (options.ipBlacklistRegex !== previousIpRegexAsString && options.ipBlacklistRegex.length === 0) {
+    Logger.debug('Removing IP Blacklist Regex Filtering');
+    previousIpRegexAsString = '';
+    ipBlacklistRegex = null;
+  } else {
+    if (options.ipBlacklistRegex !== previousIpRegexAsString) {
+      previousIpRegexAsString = options.ipBlacklistRegex;
+      Logger.debug({ ipBlacklistRegex: previousIpRegexAsString }, 'Modifying IP Blacklist Regex');
+      ipBlacklistRegex = new RegExp(options.ipBlacklistRegex, 'i');
+    }
+  }
+}
+
+function _isEntityBlacklisted(entityObj, options) {
+  const blacklist = options.blacklist;
+
+  Logger.trace({ blacklist: blacklist }, 'checking to see what blacklist looks like');
+
+  if (includes(blacklist, entityObj.value.toLowerCase())) {
+    return true;
+  }
+
+  if (entityObj.isIPv4 && !entityObj.isPrivateIP) {
+    if (ipBlacklistRegex !== null) {
+      if (ipBlacklistRegex.test(entityObj.value)) {
+        Logger.debug({ ip: entityObj.value }, 'Blocked BlackListed IP Lookup');
+        return true;
+      }
+    }
+  }
+
+  if (entityObj.isDomain) {
+    if (domainBlacklistRegex !== null) {
+      if (domainBlacklistRegex.test(entityObj.value)) {
+        Logger.debug({ domain: entityObj.value }, 'Blocked BlackListed Domain Lookup');
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 function doLookup(entities, options, callback) {
   Logger.trace({ entities: entities, options: options }, 'Entities received');
 
   let results = [];
   let minimumScore = options.minimumScore;
-  let minimumRisk = options.minimumRisk;
+  let minimumRisk = options.minimumRisk.value ? options.minimumRisk.value : 'low';
+
+  _setupRegexBlacklists(options);
 
   Logger.trace({ minimumScore: minimumScore, minimumRisk: minimumRisk });
 
@@ -31,10 +94,15 @@ function doLookup(entities, options, callback) {
     (entity, done) => {
       Logger.trace({ entity: entity }, 'Looking up entity in x-force exchange');
 
-      // x-force only seems to like URLs that start with http or https
-      if (entity.isURL && !_isValidUrl(entity.value)) {
-        done(null);
-        return;
+      if (
+        (entity.isIP && entity.isPrivateIP) ||
+        // skip blacklisted domains or IPs
+        _isEntityBlacklisted(entity, options) ||
+        // skip invalid URLs (must start with http or https)
+        (entity.isURL && !_isValidUrl(entity.value))
+      ) {
+        Logger.debug(`Ignoring entity '${entity.value}'`);
+        return done(null);
       }
 
       let requestOptions = {
@@ -55,7 +123,7 @@ function doLookup(entities, options, callback) {
         throw new Error(DATA_TYPE_ERROR);
       }
 
-      requestWithDefaults(requestOptions, function(err, resp, body) {
+      requestWithDefaults(requestOptions, function (err, resp, body) {
         Logger.trace({ error: err, body: body }, 'Results of lookup');
 
         if (err) {
@@ -95,7 +163,7 @@ function doLookup(entities, options, callback) {
         if (entity.isHash) {
           let riskLevel = body.malware.risk;
 
-          Logger.trace({ risk: riskLevel, minimumRisk: minimumRisk }, 'Checking minimum score');
+          Logger.trace({ risk: riskLevel, minimumRisk: minimumRisk }, 'Checking minimum risk');
 
           if (risk[riskLevel] < risk[minimumRisk]) {
             done();
@@ -210,16 +278,6 @@ function validateOptions(options, callback) {
     errors.push({
       key: 'minimumScore',
       message: 'You must provide a valid, numeric, minimum score for Polarity to display.'
-    });
-  }
-
-  if (
-    typeof options.minimumRisk.value !== 'string' ||
-    !['high', 'medium', 'low', ''].includes(options.minimumRisk.value)
-  ) {
-    errors.push({
-      key: 'minimumRisk',
-      message: 'Minimum risk must be either "high", "medium", "low", or "" (blank).'
     });
   }
 
