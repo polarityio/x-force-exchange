@@ -169,7 +169,7 @@ module.exports = {
             description: 'Comma dThis is an alternate option that can be used to specify domains or IPs that you do not want sent to Farsight DNSDB. The data must specify the entire IP or domain to be blocked (e.g., www.google.com is treated differently than google.com).elimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
             default: '',
             type: 'text',
-            userCanEdit: true,
+            userCanEdit: false,
             adminOnly: false
         },
         {
@@ -179,7 +179,7 @@ module.exports = {
               'Domains that match the given regex will not be looked up.',
             default: '',
             type: 'text',
-            userCanEdit: true,
+            userCanEdit: false,
             adminOnly: false
         },
         {
@@ -188,7 +188,7 @@ module.exports = {
             description: 'IPs that match the given regex will not be looked up.',
             default: '',
             type: 'text',
-            userCanEdit: true,
+            userCanEdit: false,
             adminOnly: false
         }
     ]
