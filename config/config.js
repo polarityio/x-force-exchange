@@ -115,8 +115,8 @@ module.exports = {
             description: "API key to use for authentication with X-Force Exchange",
             default: "",
             type: "text",
-            userCanEdit: false,
-            adminOnly: true
+            userCanEdit: true,
+            adminOnly: false
         },
         {
             key: "password",
@@ -124,8 +124,8 @@ module.exports = {
             description: "Password to use for authentication with X-Force Exchange",
             default: "",
             type: "password",
-            userCanEdit: false,
-            adminOnly: true
+            userCanEdit: true,
+            adminOnly: false
         },
         {
             key: "minimumScore",
@@ -133,8 +133,8 @@ module.exports = {
             description: "Minimum risk score necessary to display a matching entry (does not apply to malware/hash entities). Valid values are 0 to 10.",
             default: 0,
             type: "number",
-            userCanEdit: false,
-            adminOnly: true
+            userCanEdit: true,
+            adminOnly: false
         },
         {
             key: 'minimumRisk',
@@ -164,28 +164,28 @@ module.exports = {
             adminOnly: false
         },
         {
-            key: 'blacklist',
-            name: 'Blacklist Domains and IPs',
-            description: 'Comma delimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
+            key: 'blocklist',
+            name: 'Ignored List',
+            description: 'Comma dThis is an alternate option that can be used to specify domains or IPs that you do not want sent to Farsight DNSDB. The data must specify the entire IP or domain to be blocked (e.g., www.google.com is treated differently than google.com).elimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
             default: '',
             type: 'text',
             userCanEdit: false,
             adminOnly: false
         },
         {
-            key: 'domainBlacklistRegex',
-            name: 'Domain Black List Regex',
+            key: 'domainBlocklistRegex',
+            name: 'Ignored Domain Regex',
             description:
-              'Domains that match the given regex will not be looked up (if blank, no domains will be black listed)',
+              'Domains that match the given regex will not be looked up.',
             default: '',
             type: 'text',
             userCanEdit: false,
             adminOnly: false
         },
         {
-            key: 'ipBlacklistRegex',
-            name: 'IP Black List Regex',
-            description: 'IPs that match the given regex will not be looked up (if blank, no IPs will be black listed)',
+            key: 'ipBlocklistRegex',
+            name: 'Ignore IP Regex',
+            description: 'IPs that match the given regex will not be looked up.',
             default: '',
             type: 'text',
             userCanEdit: false,

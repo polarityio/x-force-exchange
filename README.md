@@ -28,17 +28,17 @@ Minimum risk score necessary to display a matching entry (does not apply to malw
 
 Minimum risk level necessary to display a matching entry (only applies to malware/hash entities). Valid values are "low", "medium", and "high"
 
-### Blacklist Domains and IPs
+### Ignore List
 
-Comma delimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)
+This is an alternate option that can be used to specify domains or IPs that you do not want sent to X-Force Exchange. The data must specify the entire IP or domain to be blocked (e.g., www.google.com is treated differently than google.com).
 
-### Domain Black List Regex
+### Ignore Domain Regex
 
-Domains that match the given regex will not be looked up (if blank, no domains will be black listed)
+Domains that match the given regex will not be looked up.
 
-### IP Black List Regex
+### Ignore IP Regex
 
-IPs that match the given regex will not be looked up (if blank, no IPs will be black listed)
+IPs that match the given regex will not be looked up.
 
 ## Installation Instructions
 
