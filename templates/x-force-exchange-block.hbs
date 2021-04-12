@@ -56,22 +56,30 @@
     <span class="p-value">{{details.raw.risk_level}}</span>
   </div>
   <h1 class="p-title">{{fa-icon icon="star" fixedWidth=true}} CVSS</h1>
-  <div>
-    <span class="p-key">Privileges Required:</span>
-    <span class="p-value">{{details.raw.cvss.privilegesrequired}}</span>
-  </div>
-  <div>
-    <span class="p-key">User Interaction:</span>
-    <span class="p-value">{{details.raw.cvss.userinteraction}}</span>
-  </div>
-  <div>
-    <span class="p-key">Scope:</span>
-    <span class="p-value">{{details.raw.cvss.scope}}</span>
-  </div>
-  <div>
-    <span class="p-key">Access Vector:</span>
-    <span class="p-value">{{details.raw.cvss.access_vector}}</span>
-  </div>
+  {{#if details.raw.cvss.privilegesrequired}}
+    <div>
+      <span class="p-key">Privileges Required:</span>
+      <span class="p-value">{{details.raw.cvss.privilegesrequired}}</span>
+    </div>
+  {{/if}}
+  {{#if details.raw.cvss.userinteraction}}
+    <div>
+      <span class="p-key">User Interaction:</span>
+      <span class="p-value">{{details.raw.cvss.userinteraction}}</span>
+    </div>
+  {{/if}}
+  {{#if details.raw.cvss.scope}}
+    <div>
+      <span class="p-key">Scope:</span>
+      <span class="p-value">{{details.raw.cvss.scope}}</span>
+    </div>
+  {{/if}}
+  {{#if details.raw.cvss.access_vector}}
+    <div>
+      <span class="p-key">Access Vector:</span>
+      <span class="p-value">{{details.raw.cvss.access_vector}}</span>
+    </div>
+  {{/if}}
   <div>
     <span class="p-key">Access Complexity:</span>
     <span class="p-value">{{details.raw.cvss.access_complexity}}</span>
@@ -96,10 +104,22 @@
   {{#each details.raw.platforms_affected as | platform |}}
     <span class="tag">{{platform}}</span>
   {{/each}}
-  <h1 class="p-title">{{fa-icon icon="barcode" fixedWidth=true}} Standard Codes</h1>
-  {{#each details.raw.stdcode as | code |}}
+  <h1 class="p-title">
+    {{fa-icon icon="barcode" fixedWidth=true}} Standard Codes ({{details.raw.stdcode.length}})
+    {{#if enableCodePaging}}
+      <span class="p-action ml-2" {{action "viewAllCodes"}}>
+        {{#if (eq maxCodes details.raw.stdcode.length)}}
+          view less codes {{fa-icon icon="chevron-up" fixedWidth=true}}
+        {{else}}
+          view more codes {{fa-icon icon="chevron-down" fixedWidth=true}}
+        {{/if}}
+      </span>
+    {{/if}}
+  </h1>
+  {{#each (take maxCodes details.raw.stdcode) as | code |}}
     <span class="tag">{{code}}</span>
   {{/each}}
+
   <h1 class="p-title">
     {{fa-icon icon="books" fixedWidth=true}} References ({{details.raw.references.length}})
     <span class="p-action ml-2" {{action "viewReferences"}}>
