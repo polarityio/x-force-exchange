@@ -29,3 +29,97 @@
     {{/each}}
   </div>
 {{/if}}
+
+{{#if (eq block.entity.type "cve")}}
+  <div>
+    <span class="p-key">Title:</span>
+    <span class="p-value">{{details.raw.title}}</span>
+  </div>
+  <div>
+    <span class="p-key">Description:</span>
+    <span class="p-block">{{details.raw.description}}</span>
+  </div>
+  <div>
+    <span class="p-key">Reported:</span>
+    <span class="p-value">{{details.raw.reported}}</span>
+  </div>
+  <div>
+    <span class="p-key">Exploitability:</span>
+    <span class="p-value">{{details.raw.exploitability}}</span>
+  </div>
+  <div>
+    <span class="p-key">Consequence:</span>
+    <span class="p-value">{{details.raw.consequences}}</span>
+  </div>
+  <div>
+    <span class="p-key">Risk Level:</span>
+    <span class="p-value">{{details.raw.risk_level}}</span>
+  </div>
+  <h1 class="p-title">{{fa-icon icon="star" fixedWidth=true}} CVSS</h1>
+  <div>
+    <span class="p-key">Privileges Required:</span>
+    <span class="p-value">{{details.raw.cvss.privilegesrequired}}</span>
+  </div>
+  <div>
+    <span class="p-key">User Interaction:</span>
+    <span class="p-value">{{details.raw.cvss.userinteraction}}</span>
+  </div>
+  <div>
+    <span class="p-key">Scope:</span>
+    <span class="p-value">{{details.raw.cvss.scope}}</span>
+  </div>
+  <div>
+    <span class="p-key">Access Vector:</span>
+    <span class="p-value">{{details.raw.cvss.access_vector}}</span>
+  </div>
+  <div>
+    <span class="p-key">Access Complexity:</span>
+    <span class="p-value">{{details.raw.cvss.access_complexity}}</span>
+  </div>
+  <div>
+    <span class="p-key">Confidentiality Impact:</span>
+    <span class="p-value">{{details.raw.cvss.confidentiality_impact}}</span>
+  </div>
+  <div>
+    <span class="p-key">Integrity Impact:</span>
+    <span class="p-value">{{details.raw.cvss.integrity_impact}}</span>
+  </div>
+  <div>
+    <span class="p-key">Availability Impact:</span>
+    <span class="p-value">{{details.raw.cvss.availability_impact}}</span>
+  </div>
+  <div>
+    <span class="p-key">Remediation Level:</span>
+    <span class="p-value">{{details.raw.cvss.remediation_level}}</span>
+  </div>
+  <h1 class="p-title">{{fa-icon icon="desktop" fixedWidth=true}} Platforms Affected</h1>
+  {{#each details.raw.platforms_affected as | platform |}}
+    <span class="tag">{{platform}}</span>
+  {{/each}}
+  <h1 class="p-title">{{fa-icon icon="barcode" fixedWidth=true}} Standard Codes</h1>
+  {{#each details.raw.stdcode as | code |}}
+    <span class="tag">{{code}}</span>
+  {{/each}}
+  <h1 class="p-title">
+    {{fa-icon icon="books" fixedWidth=true}} References ({{details.raw.references.length}})
+    <span class="p-action ml-2" {{action "viewReferences"}}>
+      {{#if viewReferences}}
+        hide references {{fa-icon icon="chevron-up" fixedWidth=true}}
+      {{else}}
+        view references {{fa-icon icon="chevron-down" fixedWidth=true}}
+      {{/if}}
+    </span>
+  </h1>
+  {{#if viewReferences}}
+    <ul>
+    {{#each details.raw.references as | reference |}}
+      <li>
+        <div>
+        {{reference.description}}
+        </div>
+        <a href="{{reference.link_target}}" title="{{reference.link_target}}">{{reference.link_name}} {{fa-icon "external-link-square" class="external-link-icon"}}</a>
+      </li>
+    {{/each}}
+    </ul>
+  {{/if}}
+{{/if}}

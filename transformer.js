@@ -116,6 +116,14 @@ module.exports = class Transformer {
       });
 
       details.link = 'https://exchange.xforce.ibmcloud.com/malware/' + entity.value;
+    } else if(entity.type === 'cve'){
+      let result = null;
+      if(Array.isArray(body) && body.length > 0){
+        result = body[0];
+      }
+      details.addSummary(result.title);
+      details.link = `https://exchange.xforce.ibmcloud.com/vulnerabilities/${result.xfdbid}`
+      details.raw = result;
     } else {
       this.logger.error({ entity: entity }, DATA_TYPE_ERROR);
       throw new Error(DATA_TYPE_ERROR);

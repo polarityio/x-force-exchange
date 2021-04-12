@@ -118,6 +118,8 @@ function doLookup(entities, options, callback) {
         requestOptions.url = options.host + '/url/' + entity.value;
       } else if (entity.isHash) {
         requestOptions.url = options.host + '/malware/' + entity.value;
+      } else if (entity.type === 'cve'){
+        requestOptions.url = options.host + '/vulnerabilities/search/' + entity.value;
       } else {
         Logger.error({ entity: entity }, DATA_TYPE_ERROR);
         throw new Error(DATA_TYPE_ERROR);
@@ -136,7 +138,7 @@ function doLookup(entities, options, callback) {
 
         if (resp.statusCode !== 200) {
           if (resp.statusCode === 404) {
-            Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+            Logger.trace({ id: entity.value }, 'Entity not in x-force exchange');
             results.push({
               entity: entity,
               data: null
