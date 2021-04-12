@@ -46,12 +46,18 @@ module.exports = class Transformer {
       details.link = 'https://exchange.xforce.ibmcloud.com/ip/' + entity.value;
     } else if (entity.isDomain || entity.isURL) {
       if (body.result) {
+        const cats = Object.keys(body.result.cats);
+
+        if(body.result.score === null && cats.length === 0 && !body.result.application){
+          details.hasData = false;
+          return details;
+        }
+
         details.addTitledProperty('Risk', body.result.score);
         details.addSummary(`Risk: ${body.result.score}`);
 
-        let cats = Object.keys(body.result.cats);
-
         if (cats.length > 0) {
+          details.addSummary(cats.slice(0, 2).join(','));
           cats.forEach((cat) => {
             details.addHeaderList('Categories', cat);
           });

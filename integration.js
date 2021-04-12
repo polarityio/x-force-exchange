@@ -183,18 +183,24 @@ function doLookup(entities, options, callback) {
         }
 
         const details = transformer.transform(entity, body);
-        let result = {
-          entity: entity,
-          data: {
-            summary: details.summary,
-            details
+        let result;
+        if(details.hasData){
+          result = {
+            entity: entity,
+            data: {
+              summary: details.summary,
+              details
+            }
+          };
+        } else {
+          result = {
+            entity,
+            data: null
           }
-        };
+        }
 
         Logger.trace({ result: result }, 'Result added to list');
-
         results.push(result);
-
         done();
       });
     },
