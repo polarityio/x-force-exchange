@@ -50,14 +50,6 @@ module.exports = {
             file: "./templates/x-force-exchange-block.hbs"
         }
     },
-    summary: {
-        component: {
-            file: './components/x-force-exchange-summary.js'
-        },
-        template: {
-            file: './templates/x-force-exchange-summary.hbs'
-        }
-    },
     request: {
         // Provide the path to your certFile. Leave an empty string to ignore this option.
         // Relative paths are relative to the x-force-exchange integration's root directory

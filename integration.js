@@ -180,11 +180,12 @@ function doLookup(entities, options, callback) {
           }
         }
 
+        const details = transformer.transform(entity, body);
         let result = {
           entity: entity,
           data: {
-            summary: ['test'],
-            details: transformer.transform(entity, body)
+            summary: details.summary,
+            details
           }
         };
 
