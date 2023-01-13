@@ -1,13 +1,13 @@
 {
-  "main": "./integration.js",
   "name": "x-force-exchange",
-  "version": "3.2.0-beta",
+  "version": "3.2.1-beta",
+  "main": "./integration.js",
   "private": true,
   "license": "MIT",
   "author": "Polarity",
   "dependencies": {
     "request": "^2.88.2",
     "async": "^3.2.0",
-    "lodash.includes":  "^4.3.0"
+    "lodash.includes": "^4.3.0"
   }
 }
