@@ -151,6 +151,13 @@ function doLookup(entities, options, callback) {
               debug: body,
               entityValue: entity.value
             });
+          } else if (resp.statusCode === 401) {
+            Logger.error({ error: body }, 'Invalid Credentials');
+            done({
+              detail: 'Invalid authentication credentials',
+              debug: body,
+              entityValue: entity.value
+            });
           } else {
             Logger.error({ error: body }, 'Error looking up entity in x-force exchange');
             done({
