@@ -8,6 +8,7 @@
     "domain",
     "hash"
   ],
+  "defaultColor": "light-pink",
   "styles": [
     "./styles/x-force-exchange.less"
   ],
