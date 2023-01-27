@@ -1,5 +1,5 @@
 const async = require('async');
-const request = require('request');
+const request = require('postman-request');
 const config = require('./config/config');
 const Transformer = require('./transformer');
 const includes = require('lodash.includes');
