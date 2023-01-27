@@ -1,5 +1,5 @@
 const async = require('async');
-const request = require('request');
+const request = require('postman-request');
 const config = require('./config/config');
 const Transformer = require('./transformer');
 const includes = require('lodash.includes');
@@ -118,6 +118,8 @@ function doLookup(entities, options, callback) {
         requestOptions.url = options.host + '/url/' + entity.value;
       } else if (entity.isHash) {
         requestOptions.url = options.host + '/malware/' + entity.value;
+      } else if (entity.type === 'cve'){
+        requestOptions.url = options.host + '/vulnerabilities/search/' + entity.value;
       } else {
         Logger.error({ entity: entity }, DATA_TYPE_ERROR);
         throw new Error(DATA_TYPE_ERROR);
@@ -136,7 +138,7 @@ function doLookup(entities, options, callback) {
 
         if (resp.statusCode !== 200) {
           if (resp.statusCode === 404) {
-            Logger.trace({ id: entity.value }, 'Entity not in x-force exhange');
+            Logger.trace({ id: entity.value }, 'Entity not in x-force exchange');
             results.push({
               entity: entity,
               data: null
@@ -146,6 +148,13 @@ function doLookup(entities, options, callback) {
             Logger.error({ error: body }, 'Bad Request');
             done({
               detail: 'Unexpected HTTP Status Code Received',
+              debug: body,
+              entityValue: entity.value
+            });
+          } else if (resp.statusCode === 401) {
+            Logger.error({ error: body }, 'Invalid Credentials');
+            done({
+              detail: 'Invalid authentication credentials',
               debug: body,
               entityValue: entity.value
             });
@@ -180,18 +189,25 @@ function doLookup(entities, options, callback) {
           }
         }
 
-        let result = {
-          entity: entity,
-          data: {
-            summary: ['test'],
-            details: transformer.transform(entity, body)
+        const details = transformer.transform(entity, body);
+        let result;
+        if(details.hasData){
+          result = {
+            entity: entity,
+            data: {
+              summary: details.summary,
+              details
+            }
+          };
+        } else {
+          result = {
+            entity,
+            data: null
           }
-        };
+        }
 
         Logger.trace({ result: result }, 'Result added to list');
-
         results.push(result);
-
         done();
       });
     },

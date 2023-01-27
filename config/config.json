@@ -1,0 +1,134 @@
+{
+  "name": "X-Force Exchange",
+  "acronym": "XF",
+  "description": "IBM X-Force Exchange is a threat intelligence sharing platform enabling research on security threats, aggregation of intelligence, and collaboration with peers",
+  "entityTypes": [
+    "IPv4",
+    "url",
+    "domain",
+    "hash"
+  ],
+  "defaultColor": "light-pink",
+  "styles": [
+    "./styles/x-force-exchange.less"
+  ],
+  "block": {
+    "component": {
+      "file": "./components/x-force-exchange-block.js"
+    },
+    "template": {
+      "file": "./templates/x-force-exchange-block.hbs"
+    }
+  },
+  "summary": {
+    "component": {
+      "file": "./components/x-force-exchange-summary.js"
+    },
+    "template": {
+      "file": "./templates/x-force-exchange-summary.hbs"
+    }
+  },
+  "request": {
+    "cert": "",
+    "key": "",
+    "passphrase": "",
+    "ca": "",
+    "proxy": "",
+    "rejectUnauthorized": true
+  },
+  "logging": {
+    "level": "info"
+  },
+  "options": [
+    {
+      "key": "host",
+      "name": "X-Force Exchange Host",
+      "description": "The host to use for the X-Force Exchange API",
+      "default": "https://api.xforce.ibmcloud.com",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "apikey",
+      "name": "API Key",
+      "description": "API key to use for authentication with X-Force Exchange",
+      "default": "",
+      "type": "text",
+      "userCanEdit": true,
+      "adminOnly": false
+    },
+    {
+      "key": "password",
+      "name": "Password",
+      "description": "Password to use for authentication with X-Force Exchange",
+      "default": "",
+      "type": "password",
+      "userCanEdit": true,
+      "adminOnly": false
+    },
+    {
+      "key": "minimumScore",
+      "name": "Minimum Score",
+      "description": "Minimum risk score necessary to display a matching entry (does not apply to malware/hash entities). Valid values are 0 to 10.",
+      "default": 0,
+      "type": "number",
+      "userCanEdit": true,
+      "adminOnly": false
+    },
+    {
+      "key": "minimumRisk",
+      "name": "Minimum Malware Risk",
+      "description": "Minimum risk level necessary to display a matching entry (only applies to malware/hash entities).  Valid values are \"low\", \"medium\", and \"high\"",
+      "default": {
+        "value": "low",
+        "display": "Low"
+      },
+      "type": "select",
+      "options": [
+        {
+          "value": "low",
+          "display": "Low"
+        },
+        {
+          "value": "medium",
+          "display": "Medium"
+        },
+        {
+          "value": "high",
+          "display": "High"
+        }
+      ],
+      "multiple": false,
+      "userCanEdit": true,
+      "adminOnly": false
+    },
+    {
+      "key": "blocklist",
+      "name": "Ignored List",
+      "description": "Comma dThis is an alternate option that can be used to specify domains or IPs that you do not want sent to Farsight DNSDB. The data must specify the entire IP or domain to be blocked (e.g., www.google.com is treated differently than google.com).elimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": false
+    },
+    {
+      "key": "domainBlocklistRegex",
+      "name": "Ignored Domain Regex",
+      "description": "Domains that match the given regex will not be looked up.",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": false
+    },
+    {
+      "key": "ipBlocklistRegex",
+      "name": "Ignore IP Regex",
+      "description": "IPs that match the given regex will not be looked up.",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": false
+    }
+  ]
+}

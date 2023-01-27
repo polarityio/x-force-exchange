@@ -14,7 +14,7 @@ module.exports = class Transformer {
       details.addTitledProperty('Risk Score', body.score);
       details.addSummary(`Risk: ${body.score}`);
       details.addTitledProperty('Reason', body.reason);
-      if(body.reasonDescription){
+      if (body.reasonDescription) {
         details.addTitledProperty('Reason Description', body.reasonDescription);
       }
 
@@ -36,7 +36,7 @@ module.exports = class Transformer {
         }
       }
 
-      if(Array.isArray(body.tags)){
+      if (Array.isArray(body.tags)) {
         body.tags.forEach((tag) => {
           details.addSummary(tag.tag);
           details.addTag(tag.tag);
@@ -46,12 +46,18 @@ module.exports = class Transformer {
       details.link = 'https://exchange.xforce.ibmcloud.com/ip/' + entity.value;
     } else if (entity.isDomain || entity.isURL) {
       if (body.result) {
+        const cats = Object.keys(body.result.cats);
+
+        if(body.result.score === null && cats.length === 0 && !body.result.application){
+          details.hasData = false;
+          return details;
+        }
+
         details.addTitledProperty('Risk', body.result.score);
         details.addSummary(`Risk: ${body.result.score}`);
 
-        let cats = Object.keys(body.result.cats);
-
         if (cats.length > 0) {
+          details.addSummary(cats.slice(0, 2).join(','));
           cats.forEach((cat) => {
             details.addHeaderList('Categories', cat);
           });
@@ -78,7 +84,6 @@ module.exports = class Transformer {
       details.link = 'https://exchange.xforce.ibmcloud.com/url/' + entity.value;
     } else if (entity.isHash) {
       details.addSummary(`Risk: ${body.malware.risk}`);
-      details.addSummary(`Type: ${body.malware.type}`);
 
       details.addTitledProperty('Risk', body.malware.risk);
       details.addTitledProperty('Type', body.malware.type);
@@ -97,18 +102,25 @@ module.exports = class Transformer {
         }
       }
 
+      const familySet = new Set();
+
       if (body.malware.family && body.malware.family.length > 0) {
         body.malware.family.forEach((family) => {
-          details.addSummary(family);
+          familySet.add(family);
           details.addHeaderList('Families', family);
         });
       }
 
       if (body.malware.origins && body.malware.origins.external && body.malware.origins.external.family) {
         body.malware.origins.external.family.forEach((family) => {
+          familySet.add(family);
           details.addHeaderList('Families', family);
         });
       }
+
+      [...familySet].forEach((family) => {
+        details.addSummary(family);
+      });
 
       body.tags.forEach((tag) => {
         details.addSummary(tag.tag);
@@ -116,6 +128,14 @@ module.exports = class Transformer {
       });
 
       details.link = 'https://exchange.xforce.ibmcloud.com/malware/' + entity.value;
+    } else if (entity.type === 'cve') {
+      let result = null;
+      if (Array.isArray(body) && body.length > 0) {
+        result = body[0];
+      }
+      details.addSummary(result.title);
+      details.link = `https://exchange.xforce.ibmcloud.com/vulnerabilities/${result.xfdbid}`;
+      details.raw = result;
     } else {
       this.logger.error({ entity: entity }, DATA_TYPE_ERROR);
       throw new Error(DATA_TYPE_ERROR);

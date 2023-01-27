@@ -4,6 +4,8 @@ module.exports = class Details {
     this.headerLists = [];
     this.tags = [];
     this.summary = [];
+    this.raw = {};
+    this.hasData = true;
   }
 
   addHeaderList(header, item) {

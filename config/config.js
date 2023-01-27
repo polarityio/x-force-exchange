@@ -23,7 +23,8 @@ module.exports = {
      * @optional
      */
     description: "IBM X-Force Exchange is a threat intelligence sharing platform enabling research on security threats, aggregation of intelligence, and collaboration with peers",
-    entityTypes: ['IPv4', 'url', 'domain', 'hash'],
+    entityTypes: ['IPv4', 'url', 'domain', 'hash', 'cve'],
+    defaultColor: 'light-pink',
     /**
      * An array of style files (css or less) that will be included for your integration. Any styles specified in
      * the below files can be used in your custom template.
@@ -48,14 +49,6 @@ module.exports = {
         },
         template: {
             file: "./templates/x-force-exchange-block.hbs"
-        }
-    },
-    summary: {
-        component: {
-            file: './components/x-force-exchange-summary.js'
-        },
-        template: {
-            file: './templates/x-force-exchange-summary.hbs'
         }
     },
     request: {
