@@ -1,10 +1,8 @@
 # Polarity X-Force Exchange Integration
 
-![image](https://img.shields.io/badge/status-beta-green.svg)
-
-| ![image](./assets/overlay.png) |
-|---|
-|*X-Force Exchange Example*|
+| ![image](./assets/overlay.png) | ![image](./assets/cve.png) |
+|---|---|
+|*X-Force Exchange Example*|*X-Force Exchange CVE Example*|
 
 ## X-Force Exchange Integration Options
 
