@@ -7,7 +7,8 @@
     "IPv4",
     "url",
     "domain",
-    "hash"
+    "hash",
+    "cve"
   ],
   "defaultColor": "light-pink",
   "styles": [
@@ -19,14 +20,6 @@
     },
     "template": {
       "file": "./templates/x-force-exchange-block.hbs"
-    }
-  },
-  "summary": {
-    "component": {
-      "file": "./components/x-force-exchange-summary.js"
-    },
-    "template": {
-      "file": "./templates/x-force-exchange-summary.hbs"
     }
   },
   "request": {
