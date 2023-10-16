@@ -1,12 +1,12 @@
 {
   "name": "x-force-exchange",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "main": "./integration.js",
   "private": true,
   "license": "MIT",
   "author": "Polarity",
   "dependencies": {
-    "postman-request": "^2.88.1-postman.32",
+    "postman-request": "^2.88.1-postman.33",
     "async": "^3.2.4",
     "lodash.includes": "^4.3.0"
   }

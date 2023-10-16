@@ -118,7 +118,7 @@ function doLookup(entities, options, callback) {
         requestOptions.url = options.host + '/url/' + entity.value;
       } else if (entity.isHash) {
         requestOptions.url = options.host + '/malware/' + entity.value;
-      } else if (entity.type === 'cve'){
+      } else if (entity.type === 'cve') {
         requestOptions.url = options.host + '/vulnerabilities/search/' + entity.value;
       } else {
         Logger.error({ entity: entity }, DATA_TYPE_ERROR);
@@ -168,7 +168,6 @@ function doLookup(entities, options, callback) {
           }
           return;
         }
-
         if (entity.isHash) {
           let riskLevel = body.malware.risk;
 
@@ -191,7 +190,7 @@ function doLookup(entities, options, callback) {
 
         const details = transformer.transform(entity, body);
         let result;
-        if(details.hasData){
+        if (details.hasData && details.summary.length) {
           result = {
             entity: entity,
             data: {
@@ -203,7 +202,7 @@ function doLookup(entities, options, callback) {
           result = {
             entity,
             data: null
-          }
+          };
         }
 
         Logger.trace({ result: result }, 'Result added to list');
