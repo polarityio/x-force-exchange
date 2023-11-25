@@ -7,7 +7,7 @@
   "author": "Polarity",
   "dependencies": {
     "postman-request": "^2.88.1-postman.32",
-    "async": "^3.2.4",
+    "async": "^3.2.5",
     "lodash.includes": "^4.3.0"
   }
 }
