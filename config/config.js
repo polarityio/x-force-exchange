@@ -101,17 +101,17 @@ module.exports = {
       description: 'API key to use for authentication with X-Force Exchange',
       default: '',
       type: 'text',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'password',
-      name: 'Password',
+      name: 'API Key Password',
       description: 'Password to use for authentication with X-Force Exchange',
       default: '',
       type: 'password',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'minimumScore',
@@ -120,8 +120,8 @@ module.exports = {
         'Minimum risk score necessary to display a matching entry (does not apply to malware/hash entities). Valid values are 0 to 10.',
       default: 0,
       type: 'number',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'minimumRisk',
@@ -148,18 +148,18 @@ module.exports = {
         }
       ],
       multiple: false,
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'blocklist',
       name: 'Ignored List',
       description:
-        'Comma dThis is an alternate option that can be used to specify domains or IPs that you do not want sent to Farsight DNSDB. The data must specify the entire IP or domain to be blocked (e.g., www.google.com is treated differently than google.com).elimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
+        'Comma delimited List of domains and IPs that you never want to send to X-Force Exchange (private IP addresses are never sent)',
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: false
+      adminOnly: true
     },
     {
       key: 'domainBlocklistRegex',
@@ -168,7 +168,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: false
+      adminOnly: true
     },
     {
       key: 'ipBlocklistRegex',
@@ -177,7 +177,7 @@ module.exports = {
       default: '',
       type: 'text',
       userCanEdit: false,
-      adminOnly: false
+      adminOnly: true
     }
   ]
 };
