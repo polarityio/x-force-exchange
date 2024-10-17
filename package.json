@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "Polarity",
   "dependencies": {
-    "postman-request": "^2.88.1-postman.33",
+    "postman-request": "^2.88.1-postman.40",
     "async": "^3.2.5",
     "lodash.includes": "^4.3.0"
   }
