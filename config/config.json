@@ -3,7 +3,7 @@
   "name": "X-Force Exchange",
   "acronym": "XF",
   "description": "IBM X-Force Exchange is a threat intelligence sharing platform enabling research on security threats, aggregation of intelligence, and collaboration with peers",
-  "entityTypes": ["IPv4", "url", "domain", "hash", "cve"],
+  "entityTypes": ["IPv4", "url", "domain", "MD5", "SHA1", "SHA256", "cve"],
   "defaultColor": "light-pink",
   "styles": ["./styles/x-force-exchange.less"],
   "block": {
@@ -13,13 +13,6 @@
     "template": {
       "file": "./templates/x-force-exchange-block.hbs"
     }
-  },
-  "request": {
-    "cert": "",
-    "key": "",
-    "passphrase": "",
-    "ca": "",
-    "proxy": ""
   },
   "logging": {
     "level": "info"

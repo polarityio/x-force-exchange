@@ -24,7 +24,7 @@ module.exports = {
    */
   description:
     'IBM X-Force Exchange is a threat intelligence sharing platform enabling research on security threats, aggregation of intelligence, and collaboration with peers',
-  entityTypes: ['IPv4', 'url', 'domain', 'hash', 'cve'],
+  entityTypes: ['IPv4', 'url', 'domain', 'MD5', 'SHA1', 'SHA256', 'cve'],
   defaultColor: 'light-pink',
   /**
    * An array of style files (css or less) that will be included for your integration. Any styles specified in
